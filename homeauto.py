@@ -86,9 +86,10 @@ class Base:
   #-----------------------------------------------------------------------------
 
   def schedule(self, filter, state, attime, atday):
-    cmd = 'echo "python ./iris.py %s %s" | at %s %s' % (filter, state, attime, atday)
-    print cmd
-    # os.system(cmd)
+    irisFile = os.path.abspath("%s/iris.py" % os.path.dirname(sys.argv[0]))
+    cmd = 'echo "python %s %s %s" | at %s %s' % (irisFile, filter, state, attime, atday)
+    # print cmd
+    os.system(cmd)
     return cmd
 
   #-----------------------------------------------------------------------------
@@ -120,8 +121,8 @@ if __name__ == "__main__":
   version = 2.0
   LogConsole("Home Automation Control v.%f" % version)
 
-  configFile = "%s/config.json" % os.path.dirname(sys.argv[0])
-  fd = open(os.path.expanduser(configFile), 'r')
+  configFile = os.path.abspath("%s/config.json" % os.path.dirname(sys.argv[0]))
+  fd = open(configFile, 'r')
   config = json.load(fd)
 
   message = ""

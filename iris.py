@@ -160,7 +160,7 @@ if __name__ == "__main__":
     exit(1)
 
   # rc = iris.control(plugs[1], tgtstate)
-  # rc = iris.scene(plugs, filter, tgtstate)
+  rc = iris.scene(plugs, filter, tgtstate)
   if rc:
     exit(1)
   iris.logout()
