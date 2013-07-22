@@ -1,0 +1,17 @@
+{
+  "smtp": {
+    "server": "smtp.me.com",
+    "port": 587,
+    "username": "",
+    "password": "",
+    "email": ""
+  },
+  "iris": {
+    "username": "",
+    "password": ""
+  },
+  "nest": {
+    "zipcode": 95014
+  }
+
+}
