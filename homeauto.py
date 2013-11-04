@@ -16,6 +16,7 @@ from requests import session
 import smtplib
 from email.mime.text import MIMEText
 import time
+import pytz
 import json
 
 #
@@ -39,9 +40,13 @@ class Base:
 
   #-----------------------------------------------------------------------------
 
-  def localtime(self, epoch, offset):
-    localtime = time.gmtime(epoch + (offset * 3600))
-    # print localtime.tm_hour
+  def localtime(self, epoch):
+    # could use tzlocal.get_localzone() insteaf of self.timezone
+    tz = pytz.timezone(self.timezone)
+    dst = time.localtime().tm_isdst
+    offset = tz.utcoffset(datetime.datetime.utcnow(), is_dst = dst).total_seconds()
+    localtime = time.gmtime(epoch + offset)
+    # print localtime
     return localtime
 
   #-----------------------------------------------------------------------------
@@ -112,6 +117,7 @@ class Base:
   def __init__(self, arg):
     try:
       self.www = session()
+      self.timezone = arg
     except:
       print sys.exc_info()[0]
 
@@ -127,7 +133,7 @@ if __name__ == "__main__":
 
   message = ""
 
-  base = Base(0)
+  base = Base('US/Pacific')
   zipcode = config['nest']['zipcode']
   try:
     data = base.forecast(zipcode)
