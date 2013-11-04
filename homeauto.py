@@ -62,7 +62,7 @@ class Base:
 
   def sunset(self, data):
     sunset = data[str(zipcode)]['current']['sunset']
-    sunsetlocal = base.localtime(sunset, -7)
+    sunsetlocal = base.localtime(sunset)
     sunsetstring = base.attime(sunsetlocal)
     return sunsetstring
 
@@ -79,10 +79,10 @@ class Base:
     onOff = {}
     for temp in temps:
       if temp['temp_f'] >= limit and onOff.has_key('on') == False:
-        timelocal = base.localtime(temp['time'], -7)
+        timelocal = base.localtime(temp['time'])
         onOff['on'] = base.attime(timelocal)
       elif temp['temp_f'] <= limit and onOff.has_key('on'):
-        timelocal = base.localtime(temp['time'], -7)
+        timelocal = base.localtime(temp['time'])
         onOff['off'] = base.attime(timelocal)
         break
 
