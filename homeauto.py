@@ -91,9 +91,18 @@ class Base:
 
   #-----------------------------------------------------------------------------
 
-  def schedule(self, filter, state, attime, atday):
+  def scheduleIris(self, filter, state, attime, atday):
     irisFile = os.path.abspath("%s/iris.py" % os.path.dirname(sys.argv[0]))
     cmd = 'echo "python %s %s %s" | at %s %s' % (irisFile, filter, state, attime, atday)
+    # print cmd
+    os.system(cmd)
+    return cmd
+
+  #-----------------------------------------------------------------------------
+
+  def scheduleHue(self, filter, state, attime, atday):
+    irisFile = os.path.abspath("%s/iris.py" % os.path.dirname(sys.argv[0]))
+    cmd = 'echo "python %s %s" | at %s %s' % (irisFile, state, attime, atday)
     # print cmd
     os.system(cmd)
     return cmd
@@ -139,22 +148,26 @@ if __name__ == "__main__":
   try:
     data = base.forecast(zipcode)
     lightstring = base.sunset(data)
-    message += base.schedule('Lights', 'on', lightstring, 'today') + "\n"
-    message += base.schedule('Lights', 'off', '1:00am', 'tomorrow') + "\n"
+    message += base.scheduleIris('Lights', 'on', lightstring, 'today') + "\n"
+    message += base.scheduleIris('Lights', 'off', '1:00am', 'tomorrow') + "\n"
+    message += base.scheduleHue('Lights', 'on', lightstring, 'today') + "\n"
+    message += base.scheduleHue('Lights', 'off', '1:00am', 'tomorrow') + "\n"
 
     poolstring = base.heatup(data, 66)
     if poolstring.has_key('on'):
-      message += base.schedule('Pool', 'on', poolstring['on'], 'today') + "\n"
-      message += base.schedule('Pool', 'off', poolstring['off'], 'today') + "\n"
+      message += base.scheduleIris('Pool', 'on', poolstring['on'], 'today') + "\n"
+      message += base.scheduleIris('Pool', 'off', poolstring['off'], 'today') + "\n"
     else:
-      message += base.schedule('Pool', 'on', '1:00pm', 'today') + "\n"
-      message += base.schedule('Pool', 'off', '2:00pm', 'today') + "\n"
+      message += base.scheduleIris('Pool', 'on', '1:00pm', 'today') + "\n"
+      message += base.scheduleIris('Pool', 'off', '2:00pm', 'today') + "\n"
   except:
     LogConsole("Fallback behavior")
-    message += base.schedule('Lights', 'on', '6:00pm', 'today') + "\n"
-    message += base.schedule('Lights', 'off', '1:00am', 'tomorrow') + "\n"
-    message += base.schedule('Pool', 'on', '1:00pm', 'today') + "\n"
-    message += base.schedule('Pool', 'off', '4:00pm', 'today') + "\n"
+    message += base.scheduleIris('Lights', 'on', '6:00pm', 'today') + "\n"
+    message += base.scheduleIris('Lights', 'off', '1:00am', 'tomorrow') + "\n"
+    message += base.scheduleHue('Lights', 'on', '6:00pm', 'today') + "\n"
+    message += base.scheduleHue('Lights', 'off', '1:00am', 'tomorrow') + "\n"
+    message += base.scheduleIris('Pool', 'on', '1:00pm', 'today') + "\n"
+    message += base.scheduleIris('Pool', 'off', '4:00pm', 'today') + "\n"
     traceback.print_exc()
 
   base.sendmail(config, message)
