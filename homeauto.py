@@ -101,7 +101,7 @@ class Base:
   #-----------------------------------------------------------------------------
 
   def scheduleHue(self, filter, state, attime, atday):
-    irisFile = os.path.abspath("%s/iris.py" % os.path.dirname(sys.argv[0]))
+    irisFile = os.path.abspath("%s/hue.py" % os.path.dirname(sys.argv[0]))
     cmd = 'echo "python %s %s" | at %s %s' % (irisFile, state, attime, atday)
     # print cmd
     os.system(cmd)
