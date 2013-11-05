@@ -63,9 +63,9 @@ class Base:
 
   def sunset(self, data):
     sunset = data[str(zipcode)]['current']['sunset']
-    sunsetlocal = base.localtime(sunset)
-    sunsetstring = base.attime(sunsetlocal)
-    return sunsetstring
+    sunsettime = base.localtime(sunset)
+    print sunsettime
+    return sunsettime
 
   #-----------------------------------------------------------------------------
 
@@ -81,10 +81,10 @@ class Base:
     for temp in temps:
       if temp['temp_f'] >= limit and onOff.has_key('on') == False:
         timelocal = base.localtime(temp['time'])
-        onOff['on'] = base.attime(timelocal)
+        onOff['on'] = timelocal
       elif temp['temp_f'] <= limit and onOff.has_key('on'):
         timelocal = base.localtime(temp['time'])
-        onOff['off'] = base.attime(timelocal)
+        onOff['off'] = timelocal
         break
 
     return onOff
@@ -93,18 +93,18 @@ class Base:
 
   def scheduleIris(self, filter, state, attime, atday):
     irisFile = os.path.abspath("%s/iris.py" % os.path.dirname(sys.argv[0]))
-    cmd = 'echo "python %s %s %s" | at %s %s' % (irisFile, filter, state, attime, atday)
-    # print cmd
-    os.system(cmd)
+    cmd = 'echo "python %s %s %s" | at %s %s' % (irisFile, filter, state, base.attime(attime), atday)
+    print cmd
+    # os.system(cmd)
     return cmd
 
   #-----------------------------------------------------------------------------
 
   def scheduleHue(self, filter, state, attime, atday):
     irisFile = os.path.abspath("%s/hue.py" % os.path.dirname(sys.argv[0]))
-    cmd = 'echo "python %s %s" | at %s %s' % (irisFile, state, attime, atday)
-    # print cmd
-    os.system(cmd)
+    cmd = 'echo "python %s %s" | at %s %s' % (irisFile, state, base.attime(attime), atday)
+    print cmd
+    # os.system(cmd)
     return cmd
 
   #-----------------------------------------------------------------------------
@@ -121,6 +121,21 @@ class Base:
     server.login(config['smtp']['username'], config['smtp']['password'])
     server.sendmail(config['smtp']['email'], [config['smtp']['email']], msg.as_string())
     server.quit()
+
+  #-----------------------------------------------------------------------------
+
+  def time(self, hour=1, min=0):
+    defaultTime = time.localtime()
+    timeList = list(defaultTime)
+    if min >= 60:
+      hour = hour + 1
+      min = min - 60
+    timeList[3] = hour
+    timeList[4] = min
+    timeList[5] = 0
+    defaultTime = time.struct_time(tuple(timeList))
+    print defaultTime
+    return defaultTime
 
   #-----------------------------------------------------------------------------
 
@@ -147,27 +162,27 @@ if __name__ == "__main__":
   zipcode = config['nest']['zipcode']
   try:
     data = base.forecast(zipcode)
-    lightstring = base.sunset(data)
-    message += base.scheduleIris('Lights', 'on', lightstring, 'today') + "\n"
-    message += base.scheduleIris('Lights', 'off', '1:00am', 'tomorrow') + "\n"
-    message += base.scheduleHue('Lights', 'on', lightstring, 'today') + "\n"
-    message += base.scheduleHue('Lights', 'off', '1:00am', 'tomorrow') + "\n"
+    sunsettime = base.sunset(data)
+    message += base.scheduleIris('Lights', 'on', sunsettime, 'today') + "\n"
+    message += base.scheduleIris('Lights', 'off', base.time(1,1), 'tomorrow') + "\n"
+    message += base.scheduleHue('Lights', 'on', base.time(sunsettime.tm_hour, sunsettime.tm_min + 1), 'today') + "\n"
+    message += base.scheduleHue('Lights', 'off', base.time(1,0), 'tomorrow') + "\n"
 
-    poolstring = base.heatup(data, 66)
+    poolstring = base.heatup(data, config['limits']['pool'])
     if poolstring.has_key('on'):
       message += base.scheduleIris('Pool', 'on', poolstring['on'], 'today') + "\n"
       message += base.scheduleIris('Pool', 'off', poolstring['off'], 'today') + "\n"
     else:
-      message += base.scheduleIris('Pool', 'on', '1:00pm', 'today') + "\n"
-      message += base.scheduleIris('Pool', 'off', '2:00pm', 'today') + "\n"
+      message += base.scheduleIris('Pool', 'on', base.time(13,0), 'today') + "\n"
+      message += base.scheduleIris('Pool', 'off', base.time(14,0), 'today') + "\n"
   except:
     LogConsole("Fallback behavior")
-    message += base.scheduleIris('Lights', 'on', '6:00pm', 'today') + "\n"
-    message += base.scheduleIris('Lights', 'off', '1:00am', 'tomorrow') + "\n"
-    message += base.scheduleHue('Lights', 'on', '6:00pm', 'today') + "\n"
-    message += base.scheduleHue('Lights', 'off', '1:00am', 'tomorrow') + "\n"
-    message += base.scheduleIris('Pool', 'on', '1:00pm', 'today') + "\n"
-    message += base.scheduleIris('Pool', 'off', '4:00pm', 'today') + "\n"
+    message += base.scheduleIris('Lights', 'on', base.time(18,0), 'today') + "\n"
+    message += base.scheduleIris('Lights', 'off', base.time(1,1), 'tomorrow') + "\n"
+    message += base.scheduleHue('Lights', 'on', base.time(18,1), 'today') + "\n"
+    message += base.scheduleHue('Lights', 'off', base.time(1,0), 'tomorrow') + "\n"
+    message += base.scheduleIris('Pool', 'on', base.time(13,0), 'today') + "\n"
+    message += base.scheduleIris('Pool', 'off', base.time(16,0), 'today') + "\n"
     traceback.print_exc()
 
   base.sendmail(config, message)

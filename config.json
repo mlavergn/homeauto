@@ -11,7 +11,18 @@
     "password": ""
   },
   "nest": {
+    "username": "", 
+    "password": "",
     "zipcode": 95014
+  },
+  "hue": {
+    "username": ""
+  },
+  "groups": [
+    "pool",
+    "lights"
+  ],
+  "limits": {
+    "pool": 66
   }
-
 }

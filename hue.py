@@ -18,7 +18,21 @@ class Base:
   #-----------------------------------------------------------------------------
 
   def lightPower(self, bridge, bulb, on):
-    bridge.set_light(bulb.light_id, 'on', on)
+    state = True
+    if on == False:
+      state = False
+    elif on == True:
+      state = True
+    elif on == 'False':
+      state = False
+    elif on == 'True':
+      state = True
+    elif on == "Off":
+      state = False
+    elif on == "On":
+      state = True
+
+    bridge.set_light(bulb.light_id, 'on', state)
 
   #-----------------------------------------------------------------------------
 
@@ -60,7 +74,7 @@ if __name__ == "__main__":
   if (argc == 1):
     tgtstate = True
   else:
-    tgtstate = ast.literal_eval(sys.argv[1].strip().title())
+    tgtstate = sys.argv[1].strip().title()
 
   base = Base(0)
   base.allLights(tgtstate)
