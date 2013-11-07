@@ -36,10 +36,35 @@ class Base:
 
   #-----------------------------------------------------------------------------
 
+  def hueRgbToXy(r, g, b):
+      """ 
+      Calculates the XY values (in the Hue's colourspace) from given RGB values.
+      https://github.com/PhilipsHue/PhilipsHueSDKiOS/blob/master/ApplicationDesignNotes/RGB%20to%20xy%20Color%20conversion.md
+      Returns two floats; the X and Y values of the colour.
+      """
+      r = pow((r + 0.055) / (1.0 + 0.055), 2.4) if r > 0.04045 else r / 12.92
+      g = pow((g + 0.055) / (1.0 + 0.055), 2.4) if g > 0.04045 else g / 12.92
+      b = pow((b + 0.055) / (1.0 + 0.055), 2.4) if b > 0.04045 else b / 12.92
+      X = r * 0.649926 + g * 0.103455 + b * 0.197109
+      Y = r * 0.234327 + g * 0.743075 + b * 0.022598
+      Z = r * 0.000000 + g * 0.053077 + b * 1.035763
+      x = X / (X + Y + Z)
+      y = Y / (X + Y + Z)
+      # print "rgb returns x: %s and y: %s" % (x, y)
+      return x, y
+
+  #-----------------------------------------------------------------------------
+
+  def lightHueRgb(self, red, green, blue):
+    x, y = self.hueRgbToXy(red/255, green/255, blue/255)
+    cmd = {'xy': (x, y)}
+    bridge.set_light(bulb.light_id, cmd)
+
+  #-----------------------------------------------------------------------------
+
   def lightHue(self, bridge, bulb, bri, sat, ct):
-    bridge.set_light(bulb.light_id, 'bri', 254)
-    bridge.set_light(bulb.light_id, 'sat', 128+64)
-    bridge.set_light(bulb.light_id, 'ct', 400) #154-500
+    cmd = {'bri': 254, 'sat': 128+64, 'ct': 400}
+    bridge.set_light(bulb.light_id, cmd)
 
   #-----------------------------------------------------------------------------
 

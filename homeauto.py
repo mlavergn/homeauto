@@ -94,8 +94,8 @@ class Base:
   def scheduleIris(self, filter, state, attime, atday):
     irisFile = os.path.abspath("%s/iris.py" % os.path.dirname(sys.argv[0]))
     cmd = 'echo "python %s %s %s" | at %s %s' % (irisFile, filter, state, base.attime(attime), atday)
-    print cmd
-    # os.system(cmd)
+    # print cmd
+    os.system(cmd)
     return cmd
 
   #-----------------------------------------------------------------------------
@@ -103,8 +103,8 @@ class Base:
   def scheduleHue(self, filter, state, attime, atday):
     irisFile = os.path.abspath("%s/hue.py" % os.path.dirname(sys.argv[0]))
     cmd = 'echo "python %s %s" | at %s %s' % (irisFile, state, base.attime(attime), atday)
-    print cmd
-    # os.system(cmd)
+    # print cmd
+    os.system(cmd)
     return cmd
 
   #-----------------------------------------------------------------------------
@@ -134,7 +134,6 @@ class Base:
     timeList[4] = min
     timeList[5] = 0
     defaultTime = time.struct_time(tuple(timeList))
-    print defaultTime
     return defaultTime
 
   #-----------------------------------------------------------------------------
