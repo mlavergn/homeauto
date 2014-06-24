@@ -13,7 +13,18 @@ from phue import Bridge
 import json
 import ast
 
+import urllib
+
 class Base:
+
+  #-----------------------------------------------------------------------------
+
+  def bridgeIP(self):
+    sock = urllib.urlopen("https://www.meethue.com/api/nupnp")
+    content = sock.read()
+    sock.close()
+    data = json.loads(content)
+    return data[0]['internalipaddress']
 
   #-----------------------------------------------------------------------------
 
@@ -82,7 +93,8 @@ class Base:
 
   def __init__(self, arg):
     try:
-      bridgeIP = Bridge().get_ip_address()
+      # bridgeIP = Bridge().get_ip_address()
+      bridgeIP = self.bridgeIP()
       self.bridge = Bridge(ip=bridgeIP, username=config['hue']['username'])
       self.bulbs = self.bridge.get_light_objects()
     except:
